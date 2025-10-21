@@ -1,17 +1,16 @@
 package com.example;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Warehouse {
 
-    private static final Map<String, Warehouse> instances = new HashMap<>();
-    private final String name;
-    private final List<Product> products = new ArrayList<>();
+    public static final Map<String, Warehouse> instances = new HashMap<>();
+    public final String name;
+    public final List<Product> products = new ArrayList<>();
 
-    private Warehouse(String name) {
+    public Warehouse(String name) {
         this.name = name;
     }
 
@@ -50,7 +49,6 @@ public class Warehouse {
     }
 
     public List<Perishable> expiredProducts() {
-        LocalDate today = LocalDate.now();
         List<Perishable> result = new ArrayList<>();
         for (Product p : products) {
             if (p instanceof Perishable per && per.isExpired()) {
