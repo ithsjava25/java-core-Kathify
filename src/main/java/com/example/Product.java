@@ -5,10 +5,10 @@ import java.util.UUID;
 
 public abstract class Product {
 
-    private final UUID uuid;
-    private final String name;
-    private final Category category;
-    private BigDecimal price; // OBS: inte final för att matcha lärarens kod
+    public final UUID uuid;
+    public final String name;
+    public final Category category;
+    public BigDecimal price;
 
     public Product(UUID uuid, String name, Category category, BigDecimal price) {
         if (uuid == null) throw new IllegalArgumentException("UUID cannot be null.");
