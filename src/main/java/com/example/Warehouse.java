@@ -1,13 +1,13 @@
 package com.example;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.time.LocalDate;
-
 
 public class Warehouse {
 
-    private static Warehouse instance;
+    private static final Map<String, Warehouse> instances = new HashMap<>();
     private final String name;
     private final List<Product> products = new ArrayList<>();
 
@@ -16,10 +16,7 @@ public class Warehouse {
     }
 
     public static Warehouse getInstance(String name) {
-        if (instance == null) {
-            instance = new Warehouse(name);
-        }
-        return instance;
+        return instances.computeIfAbsent(name, Warehouse::new);
     }
 
     public String getName() {
@@ -27,15 +24,25 @@ public class Warehouse {
     }
 
     public void addProduct(Product product) {
-        if (product != null) products.add(product);
+        if (product == null) throw new IllegalArgumentException("Product cannot be null.");
+        products.add(product);
     }
 
     public List<Product> getProducts() {
-        return new ArrayList<>(products);
+        return Collections.unmodifiableList(new ArrayList<>(products));
     }
 
     public Optional<Product> getProductById(UUID uuid) {
         return products.stream().filter(p -> p.uuid().equals(uuid)).findFirst();
+    }
+
+    public void updateProductPrice(UUID uuid, BigDecimal newPrice) {
+        Product product = getProductById(uuid)
+                .orElseThrow(() -> new NoSuchElementException("Product not found with id: " + uuid));
+        if (newPrice == null || newPrice.compareTo(BigDecimal.ZERO) < 0)
+            throw new IllegalArgumentException("Price cannot be negative.");
+        // Assuming Product has a setter called setPrice
+        product.setPrice(newPrice);
     }
 
     public Map<Category, List<Product>> getProductsGroupedByCategories() {
@@ -43,13 +50,11 @@ public class Warehouse {
     }
 
     public List<Perishable> expiredProducts() {
-        LocalDate today = java.time.LocalDate.now();
+        LocalDate today = LocalDate.now();
         List<Perishable> result = new ArrayList<>();
         for (Product p : products) {
-            if (p instanceof Perishable per) {
-                if (per.expirationDate().isBefore(today)) {
-                    result.add(per);
-                }
+            if (p instanceof Perishable per && per.isExpired()) {
+                result.add(per);
             }
         }
         return result;
@@ -63,5 +68,17 @@ public class Warehouse {
             }
         }
         return result;
+    }
+
+    public void remove(UUID uuid) {
+        products.removeIf(p -> p.uuid().equals(uuid));
+    }
+
+    public void clearProducts() {
+        products.clear();
+    }
+
+    public boolean isEmpty() {
+        return products.isEmpty();
     }
 }

@@ -8,7 +8,7 @@ public abstract class Product {
     public final UUID uuid;
     public final String name;
     public final Category category;
-    public BigDecimal price;
+    public BigDecimal price; // ändrad från final så setPrice fungerar
 
     public Product(UUID uuid, String name, Category category, BigDecimal price) {
         if (uuid == null) throw new IllegalArgumentException("UUID cannot be null.");
@@ -23,29 +23,16 @@ public abstract class Product {
         this.price = price;
     }
 
-    public UUID uuid() {
-        return uuid;
-    }
+    public UUID uuid() { return uuid; }
+    public String name() { return name; }
+    public Category category() { return category; }
+    public BigDecimal price() { return price; }
 
-    public String name() {
-        return name;
-    }
-
-    public Category category() {
-        return category;
-    }
-
-    public BigDecimal price() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        if (price == null || price.compareTo(BigDecimal.ZERO) < 0)
+    public void setPrice(BigDecimal newPrice) {
+        if (newPrice == null || newPrice.compareTo(BigDecimal.ZERO) < 0)
             throw new IllegalArgumentException("Price cannot be negative.");
-        this.price = price;
+        this.price = newPrice;
     }
-
-    public String getName() { return name; }
 
     public abstract String productDetails();
 }
