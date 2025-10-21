@@ -1,25 +1,20 @@
 package com.example;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.math.BigDecimal;
+
 
 public class Warehouse {
 
-    public static final Map<String, Warehouse> instances = new HashMap<>();
-    public final String name;
-    public final List<Product> products = new ArrayList<>();
+    private static final Map<String, Warehouse> instances = new HashMap<>();
+    private final List<Product> products = new ArrayList<>();
 
-    public Warehouse(String name) {
-        this.name = name;
+    private Warehouse(String name) {
     }
 
     public static Warehouse getInstance(String name) {
         return instances.computeIfAbsent(name, Warehouse::new);
-    }
-
-    public String getName() {
-        return name;
     }
 
     public void addProduct(Product product) {
@@ -28,20 +23,11 @@ public class Warehouse {
     }
 
     public List<Product> getProducts() {
-        return Collections.unmodifiableList(new ArrayList<>(products));
+        return Collections.unmodifiableList(products);
     }
 
     public Optional<Product> getProductById(UUID uuid) {
         return products.stream().filter(p -> p.uuid().equals(uuid)).findFirst();
-    }
-
-    public void updateProductPrice(UUID uuid, BigDecimal newPrice) {
-        Product product = getProductById(uuid)
-                .orElseThrow(() -> new NoSuchElementException("Product not found with id: " + uuid));
-        if (newPrice == null || newPrice.compareTo(BigDecimal.ZERO) < 0)
-            throw new IllegalArgumentException("Price cannot be negative.");
-        // Assuming Product has a setter called setPrice
-        product.setPrice(newPrice);
     }
 
     public Map<Category, List<Product>> getProductsGroupedByCategories() {
@@ -49,34 +35,35 @@ public class Warehouse {
     }
 
     public List<Perishable> expiredProducts() {
-        List<Perishable> result = new ArrayList<>();
-        for (Product p : products) {
-            if (p instanceof Perishable per && per.isExpired()) {
-                result.add(per);
-            }
-        }
-        return result;
+        return products.stream()
+                .filter(p -> p instanceof Perishable)
+                .map(p -> (Perishable)p)
+                .filter(Perishable::isExpired)
+                .toList();
     }
 
     public List<Shippable> shippableProducts() {
-        List<Shippable> result = new ArrayList<>();
-        for (Product p : products) {
-            if (p instanceof Shippable s) {
-                result.add(s);
-            }
-        }
-        return result;
+        return products.stream()
+                .filter(p -> p instanceof Shippable)
+                .map(p -> (Shippable)p)
+                .toList();
     }
 
-    public void remove(UUID uuid) {
-        products.removeIf(p -> p.uuid().equals(uuid));
+    public boolean isEmpty() {
+        return products.isEmpty();
     }
 
     public void clearProducts() {
         products.clear();
     }
 
-    public boolean isEmpty() {
-        return products.isEmpty();
+    public void remove(UUID uuid) {
+        products.removeIf(p -> p.uuid().equals(uuid));
+    }
+
+    public void updateProductPrice(UUID uuid, BigDecimal newPrice) {
+        Product p = getProductById(uuid).orElseThrow(() ->
+                new NoSuchElementException("Product not found with id: " + uuid));
+        p.price(newPrice);
     }
 }

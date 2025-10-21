@@ -3,6 +3,6 @@ package com.example;
 import java.math.BigDecimal;
 
 public interface Shippable {
-    Double weight();
+    double weight();
     BigDecimal calculateShippingCost();
 }

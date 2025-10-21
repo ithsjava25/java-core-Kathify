@@ -1,36 +1,26 @@
 package com.example;
 
-import java.util.Objects;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class Category {
+public final class Category {
+
+    private static final Map<String, Category> cache = new ConcurrentHashMap<>();
     private final String name;
 
     private Category(String name) {
-        if (name == null || name.isBlank())
-            throw new IllegalArgumentException("Category name cannot be null or blank.");
         this.name = name;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public static Category of(String name) {
-        return new Category(name);
+        if (name == null) throw new IllegalArgumentException("Category name can't be null");
+        String trimmed = name.trim();
+        if (trimmed.isEmpty()) throw new IllegalArgumentException("Category name can't be blank");
+        String normalized = trimmed.substring(0,1).toUpperCase() + trimmed.substring(1).toLowerCase();
+        return cache.computeIfAbsent(normalized, Category::new);
     }
 
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Category)) return false;
-        Category category = (Category) o;
-        return name.equalsIgnoreCase(category.name);
-    }
-
-    public int hashCode() {
-        return Objects.hash(name.toLowerCase());
-    }
-
-    public String toString() {
+    public String getName() {
         return name;
     }
 }

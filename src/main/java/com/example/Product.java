@@ -5,10 +5,10 @@ import java.util.UUID;
 
 public abstract class Product {
 
-    public final UUID uuid;
-    public final String name;
-    public final Category category;
-    public BigDecimal price; // ändrad från final så setPrice fungerar
+    private final UUID uuid;
+    private final String name;
+    private final Category category;
+    private BigDecimal price;
 
     public Product(UUID uuid, String name, Category category, BigDecimal price) {
         if (uuid == null) throw new IllegalArgumentException("UUID cannot be null.");
@@ -28,7 +28,7 @@ public abstract class Product {
     public Category category() { return category; }
     public BigDecimal price() { return price; }
 
-    public void setPrice(BigDecimal newPrice) {
+    public void price(BigDecimal newPrice) {
         if (newPrice == null || newPrice.compareTo(BigDecimal.ZERO) < 0)
             throw new IllegalArgumentException("Price cannot be negative.");
         this.price = newPrice;
