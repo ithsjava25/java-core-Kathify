@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 
 public interface Shippable {
 
+    BigDecimal weight();
     BigDecimal calculateShippingCost();
-
-    Double weight();
-
 }
