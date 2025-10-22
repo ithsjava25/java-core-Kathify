@@ -264,6 +264,7 @@ class BasicTest {
                         .isInstanceOf(UnsupportedOperationException.class);
             }
 
+
             @Test
             @DisplayName("✅ should correctly remove an existing product")
             void should_removeExistingProduct() {
