@@ -1,49 +1,27 @@
 package com.example;
 
-import java.math.BigDecimal;
 import java.util.UUID;
+import java.math.BigDecimal;
 
 public class ElectronicsProduct extends Product implements Shippable {
+    private int warrantyPeriod; // in months
 
-    private final int warrantyMonths;
-    private final BigDecimal weight;
-
-    public ElectronicsProduct(UUID uuid, String name, Category category, BigDecimal price,
-                              int warrantyMonths, BigDecimal weight) {
-        super(uuid, name, category, price);
-
-        if (weight == null || weight.compareTo(BigDecimal.ZERO) < 0)
-            throw new IllegalArgumentException("Weight cannot be negative.");
-        if (warrantyMonths < 0)
-            throw new IllegalArgumentException("Warranty months cannot be negative.");
-
-        this.warrantyMonths = warrantyMonths;
-        this.weight = weight;
+    public ElectronicsProduct(UUID id, String name, Category category, BigDecimal price, int warrantyPeriod) {
+        super(id, name, category, price);
+        this.warrantyPeriod = warrantyPeriod;
     }
 
     @Override
-    public String productDetails() {
-        return "Electronics: " + name() + ", Warranty: " + warrantyMonths + " months, Price: " + price();
-    }
-
-    // shipp
-    @Override
-    public BigDecimal weight() {
-        return weight;
+    public boolean isPerishable() {
+        return false;
     }
 
     @Override
-    public BigDecimal calculateShippingCost() {
-
-         //weight större än 5.0kg lägg till 49
-        BigDecimal baseCost = BigDecimal.valueOf(79);
-        if (weight.compareTo(BigDecimal.valueOf(5.0)) > 0) {
-            baseCost = baseCost.add(BigDecimal.valueOf(49));
-        }
-        return baseCost;
+    public boolean isShippable() {
+        return true;
     }
 
-    public int warrantyMonths() {
-        return warrantyMonths;
+    public int getWarrantyPeriod() {
+        return warrantyPeriod;
     }
 }
