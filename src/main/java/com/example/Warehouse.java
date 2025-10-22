@@ -1,69 +1,95 @@
 package com.example;
 
-import java.util.*;
-import java.util.stream.Collectors;
 import java.math.BigDecimal;
-
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class Warehouse {
-
-    private static final Map<String, Warehouse> instances = new HashMap<>();
-    private final List<Product> products = new ArrayList<>();
-
-    private Warehouse(String name) {
-    }
+    public static final Map<String, Warehouse> INSTANCES = new ConcurrentHashMap<>();
 
     public static Warehouse getInstance(String name) {
-        return instances.computeIfAbsent(name, Warehouse::new);
+        Objects.requireNonNull(name, "name cannot be null");
+        String key = name.trim();
+        if (key.isEmpty()) {
+            throw new IllegalArgumentException("name cannot be blank or empty");
+        }
+        return INSTANCES.computeIfAbsent(key, Warehouse::new);
     }
 
-    public void addProduct(Product product) {
-        if (product == null) throw new IllegalArgumentException("Product cannot be null.");
-        products.add(product);
+    public final String name;
+    public final Map<UUID, Product> products = new LinkedHashMap<>();
+    public final Set<UUID> changedProductIds = new LinkedHashSet<>();
+
+    public Warehouse(String name) {
+        this.name = Objects.requireNonNull(name, "name cannot be null");
+    }
+
+    public void addProduct(Product p) {
+        if (p == null) {
+            throw new IllegalArgumentException("Product cannot be null.");
+        }
+        products.put(p.uuid(), p);
     }
 
     public List<Product> getProducts() {
-        return Collections.unmodifiableList(products);
+        return List.copyOf(products.values());
     }
 
-    public Optional<Product> getProductById(UUID uuid) {
-        return products.stream().filter(p -> p.uuid().equals(uuid)).findFirst();
+    public Optional<Product> getProductById(UUID id) {
+        return Optional.ofNullable(products.get(id));
     }
 
-    public Map<Category, List<Product>> getProductsGroupedByCategories() {
-        return products.stream().collect(Collectors.groupingBy(Product::category));
+    public void updateProductPrice(UUID id, BigDecimal newPrice) {
+        Objects.requireNonNull(id, "id");
+        Objects.requireNonNull(newPrice, "newPrice");
+
+        Product p = products.get(id);
+        if (p == null)
+            throw new NoSuchElementException("Product not found with id: " + id);
+
+        if (p.price() == null || p.price().compareTo(newPrice) != 0) {
+            p.price(newPrice);
+            changedProductIds.add(id);
+        }
     }
 
-    public List<Perishable> expiredProducts() {
-        return products.stream()
-                .filter(p -> p instanceof Perishable)
-                .map(p -> (Perishable)p)
+    public List<Perishable> expiredProducts(){
+        return products.values().stream()
+                .filter(p -> (p instanceof Perishable per) && per.isExpired())
+                .map(p -> (Perishable) p)
                 .filter(Perishable::isExpired)
-                .toList();
+                .collect(Collectors.toList());
     }
 
-    public List<Shippable> shippableProducts() {
-        return products.stream()
-                .filter(p -> p instanceof Shippable)
-                .map(p -> (Shippable)p)
-                .toList();
+    public List<Shippable> shippableProducts(){
+        return products.values().stream()
+                .filter(product -> (product instanceof Shippable))
+                .map(product -> (Shippable) product)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public boolean isEmpty() {
+    public String getName(){
+        return name;
+    }
+
+    public void clearProducts(){
+        products.clear();
+        changedProductIds.clear();
+    }
+
+    public boolean isEmpty(){
         return products.isEmpty();
     }
 
-    public void clearProducts() {
-        products.clear();
+    public void remove(UUID id){
+        products.remove(id);
+        changedProductIds.remove(id);
     }
 
-    public void remove(UUID uuid) {
-        products.removeIf(p -> p.uuid().equals(uuid));
-    }
-
-    public void updateProductPrice(UUID uuid, BigDecimal newPrice) {
-        Product p = getProductById(uuid).orElseThrow(() ->
-                new NoSuchElementException("Product not found with id: " + uuid));
-        p.price(newPrice);
+    public Map<Category, List<Product>> getProductsGroupedByCategories() {
+        return products.values()
+                .stream()
+                .collect(Collectors.groupingBy(Product::category));
     }
 }
