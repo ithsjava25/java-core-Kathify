@@ -1,34 +1,27 @@
 package com.example;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 import java.util.UUID;
 
 public abstract class Product {
-    private final UUID id;
-    private final String name;
-    private final Category category;
+    private UUID id;
+    private String name;
+    private Category category;
     private BigDecimal price;
 
-    protected Product(UUID id, String name, Category category, BigDecimal price){
-        this.id = Objects.requireNonNull(id, "id can't be null");
-        if(name == null || name.isBlank()){
-            throw new IllegalArgumentException("name can't be null or blank");
-        }
-        this.name = Objects.requireNonNull(name, "name");
-        this.category = Objects.requireNonNull(category, "category can't be null");
-        this.price = Objects.requireNonNull(price, "price");
-    }
-
+    // Price method (använd den istället för getPrice)
     public BigDecimal price() {
-        return price;
+        return this.price;
     }
 
-    public UUID uuid() {
-        return id;
+    public Product(UUID id, String name, Category category, BigDecimal price) {
+        this.id = id;
+        this.name = name;
+        this.category = category;
+        this.price = price;
     }
 
-    public String name() {
+    public String getName() {
         return name;
     }
 
@@ -36,12 +29,10 @@ public abstract class Product {
         return category;
     }
 
-    public void price(BigDecimal newPrice) {
-        this.price = Objects.requireNonNull(newPrice, "price");
+    public UUID getId() {
+        return id;
     }
 
-
-    public abstract String productDetails();
-
-
+    // Abstrakt metod för att avgöra om produkten är perishable (för livsmedel)
+    public abstract boolean isPerishable();
 }

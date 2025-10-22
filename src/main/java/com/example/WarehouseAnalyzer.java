@@ -73,7 +73,7 @@ class WarehouseAnalyzer {
         String term = searchTerm.toLowerCase(Locale.ROOT);
         List<Product> result = new ArrayList<>();
         for (Product p : warehouse.getProducts()) {
-            if (p.name().toLowerCase(Locale.ROOT).contains(term)) {
+            if (p.getName().toLowerCase(Locale.ROOT).contains(term)) {
                 result.add(p);
             }
         }
@@ -145,61 +145,25 @@ class WarehouseAnalyzer {
      * @param standardDeviations threshold in standard deviations (e.g., 2.0)
      * @return list of products considered outliers
      */
-    public List<Product> findPriceOutliers(double irqMultiplier) {
-        List<Product> items = warehouse.getProducts();
-        int n = items.size();
-        if (n < 4) return List.of();
-
-        // Sort by price ascending
-        List<Product> sorted = new ArrayList<>(items);
-        sorted.sort(Comparator.comparing(Product::price));
-
-        List<BigDecimal> prices = sorted.stream()
+    public List<Product> findPriceOutliers(double standardDeviations) {
+        List<Product> products = warehouse.getProducts();
+        int n = products.size();
+        if (n == 0) return List.of();
+        double sum = products.stream().map(Product::price).mapToDouble(bd -> bd.doubleValue()).sum();
+        double mean = sum / n;
+        double variance = products.stream()
                 .map(Product::price)
-                .toList();
-
-        BigDecimal q1, q3;
-
-        List<BigDecimal> lower;
-        List<BigDecimal> upper;
-        if (n % 2 == 0){
-            lower = prices.subList(0, n/2);
-            upper = prices.subList(n/2, n);
-        } else {
-            int mid = n / 2;
-            lower = prices.subList(0, mid);
-            upper = prices.subList(mid + 1, n);
-        }
-        q1 = median(lower);
-        q3 = median(upper);
-
-        BigDecimal iqr = q3.subtract(q1);
-        if (iqr.signum() == 0) return List.of();
-
-        BigDecimal k = BigDecimal.valueOf(irqMultiplier);
-        BigDecimal lowerFence = q1.subtract(iqr.multiply(k)); // q1 - k * iqr
-        BigDecimal upperFence = q3.add(iqr.multiply(k)); // q3 + k * iqr
-
+                .mapToDouble(bd -> Math.pow(bd.doubleValue() - mean, 2))
+                .sum() / n;
+        double std = Math.sqrt(variance);
+        double threshold = standardDeviations * std;
         List<Product> outliers = new ArrayList<>();
-        for (Product p : items){
-            BigDecimal price = p.price();
-            if(price.compareTo(lowerFence) < 0 || price.compareTo(upperFence) > 0){
-                outliers.add(p);
-            }
+        for (Product p : products) {
+            double diff = Math.abs(p.price().doubleValue() - mean);
+            if (diff > threshold) outliers.add(p);
         }
-
         return outliers;
     }
-
-    private static BigDecimal median(List<BigDecimal> sorted){
-        int m = sorted.size();
-        int mid = m / 2;
-        if (m % 2 == 0)
-            return sorted.get(mid -1).add(sorted.get(mid)).divide(BigDecimal.valueOf(2), 10, RoundingMode.HALF_UP);
-        return sorted.get(mid);
-    }
-
-
 
     /**
      * Groups all shippable products into ShippingGroup buckets such that each group's total weight
