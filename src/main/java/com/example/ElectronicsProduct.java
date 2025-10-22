@@ -4,7 +4,7 @@ import java.util.UUID;
 import java.math.BigDecimal;
 
 public class ElectronicsProduct extends Product implements Shippable {
-    private int warrantyPeriod; // in months
+    private int warrantyPeriod;
 
     public ElectronicsProduct(UUID id, String name, Category category, BigDecimal price, int warrantyPeriod) {
         super(id, name, category, price);
