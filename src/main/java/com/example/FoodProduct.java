@@ -9,23 +9,23 @@ public class FoodProduct extends Product implements Perishable {
     private BigDecimal weight;
 
     public FoodProduct(UUID id, String name, Category category, BigDecimal price, LocalDate expirationDate, BigDecimal weight) {
-        super(id, name, category, price);  // Anropa konstruktorn för Product
+        super(id, name, category, price);
         this.expirationDate = expirationDate;
         this.weight = weight;
     }
 
     @Override
     public boolean isPerishable() {
-        return true;  // Eftersom denna produkt är perishable
+        return true;
     }
 
     @Override
     public LocalDate getExpirationDate() {
-        return expirationDate;  // Returnera utgångsdatumet
+        return expirationDate;
     }
 
     public BigDecimal getWeight() {
-        return weight;  // Returnera produktens vikt
+        return weight;
     }
 
     @Override

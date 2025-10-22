@@ -9,7 +9,6 @@ public abstract class Product {
     private Category category;
     private BigDecimal price;
 
-    // Price method (använd den istället för getPrice)
     public BigDecimal price() {
         return this.price;
     }
@@ -33,6 +32,5 @@ public abstract class Product {
         return id;
     }
 
-    // Abstrakt metod för att avgöra om produkten är perishable (för livsmedel)
     public abstract boolean isPerishable();
 }
