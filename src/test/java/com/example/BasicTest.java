@@ -136,6 +136,7 @@ class BasicTest {
                 // ... (same as before)
             }
 
+
             @Test
             @DisplayName("✅ should correctly remove an existing product")
             void should_removeExistingProduct() {

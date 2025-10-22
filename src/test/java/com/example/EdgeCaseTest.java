@@ -20,6 +20,7 @@ class EdgeCaseTest {
     private Warehouse warehouse;
     private WarehouseAnalyzer analyzer;
 
+
     /**
      * Test setup: obtain a named singleton Warehouse instance, clear all products for test isolation,
      * and initialize a WarehouseAnalyzer used throughout the advanced feature tests.
