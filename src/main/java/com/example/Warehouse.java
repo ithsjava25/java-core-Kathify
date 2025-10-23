@@ -14,6 +14,10 @@ public class Warehouse {
         return instances.computeIfAbsent(name, Warehouse::new);
     }
 
+    public static Warehouse getInstance() {
+        return getInstance("DefaultWarehouse");
+    }
+
     private final String name;
     private final Map<UUID, Product> products = new HashMap<>();
     private final List<Product> changedProducts = new ArrayList<>();
@@ -30,7 +34,9 @@ public class Warehouse {
     }
 
     public void addProduct(Product product) {
-        Objects.requireNonNull(product, "Product cannot be null");
+        if (product == null) {
+            throw new IllegalArgumentException("Product cannot be null.");
+        }
         if (products.containsKey(product.getId())) {
             throw new IllegalArgumentException("Product with that id already exists, use updateProduct for updates.");
         }
@@ -38,12 +44,12 @@ public class Warehouse {
     }
 
     public void updateProductPrice(UUID id, BigDecimal newPrice) {
-        Objects.requireNonNull(id, "Id cannot be null");
-        Objects.requireNonNull(newPrice, "Price cannot be null");
+        Objects.requireNonNull(id, "Id cannot be null.");
+        Objects.requireNonNull(newPrice, "Price cannot be null.");
 
         Product existing = products.get(id);
         if (existing == null) {
-            throw new NoSuchElementException("Product with that id does not exist.");
+            throw new NoSuchElementException("Product not found with id: " + id);
         }
 
         existing.setPrice(newPrice);
@@ -51,7 +57,7 @@ public class Warehouse {
     }
 
     public Product remove(UUID id) {
-        Objects.requireNonNull(id, "Id cannot be null");
+        Objects.requireNonNull(id, "Id cannot be null.");
         return products.remove(id);
     }
 
@@ -67,9 +73,12 @@ public class Warehouse {
         changedProducts.clear();
     }
 
-    // Hjälpmetoder
     public Optional<Product> findById(UUID id) {
         return Optional.ofNullable(products.get(id));
+    }
+
+    public Optional<Product> getProductById(UUID id) {
+        return findById(id);
     }
 
     public Map<Category, List<Product>> getProductsGroupedByCategories() {

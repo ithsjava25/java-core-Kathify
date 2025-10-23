@@ -22,10 +22,8 @@ public final class Category {
             throw new IllegalArgumentException("Category name can't be blank");
         }
 
-        // Kapitalisera första bokstaven
         String formatted = trimmed.substring(0, 1).toUpperCase() + trimmed.substring(1);
 
-        // Flyweight: returnera samma instans om den redan finns
         return INSTANCES.computeIfAbsent(formatted, Category::new);
     }
 
