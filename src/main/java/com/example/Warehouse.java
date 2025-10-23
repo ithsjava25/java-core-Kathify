@@ -7,6 +7,74 @@ import java.util.stream.Collectors;
 
 public class Warehouse {
 
+    private static final Map<String, Warehouse> instances = new ConcurrentHashMap<>();
+
+    public static Warehouse getInstance(String name) {
+        return instances.computeIfAbsent(name, Warehouse::new);
+    }
+
+    private final String name;
+    private final Map<UUID, Product> products = new HashMap<>();
+    private final List<Product> changedProducts = new ArrayList<>();
+
+    private Warehouse(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Warehouse name cannot be blank");
+        }
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void addProduct(Product product) {
+        Objects.requireNonNull(product, "Product cannot be null");
+
+        if (products.containsKey(product.getId())) {
+            throw new IllegalArgumentException("Product with that id already exists, use updateProduct for updates.");
+        }
+
+        products.put(product.getId(), product);
+    }
+
+    public void updateProductPrice(UUID id, BigDecimal newPrice) {
+        Objects.requireNonNull(id, "Id cannot be null");
+        Objects.requireNonNull(newPrice, "Price cannot be null");
+
+        Product existing = products.get(id);
+        if (existing == null) {
+            throw new NoSuchElementException("Product with that id does not exist.");
+        }
+
+        existing.setPrice(newPrice);
+        changedProducts.add(existing);
+    }
+
+    public Product remove(UUID id) {
+        Objects.requireNonNull(id, "Id cannot be null");
+        return products.remove(id);
+    }
+
+    public List<Product> getProducts() {
+        return List.copyOf(products.values());
+    }
+
+    public List<Product> getChangedProducts() {
+        return List.copyOf(changedProducts);
+    }
+
+    public void clearChangedProducts() {
+        changedProducts.clear();
+    }
+
+    // hjälpmetoder
+    public Optional<Product> findById(UUID id) {
+        return Optional.ofNullable(products.get(id
+
+
+public class Warehouse {
+
     private static final Map<String, Warehouse> instances = new HashMap<>();
 
     private final String name;
@@ -81,4 +149,5 @@ public class Warehouse {
     public void clearProducts() {
         products.clear();
     }
+
 }
