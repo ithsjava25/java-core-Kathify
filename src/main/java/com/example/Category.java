@@ -1,7 +1,9 @@
 package com.example;
 
-public class Category {
-    private String name;
+import java.util.Objects;
+
+public final class Category {
+    private final String name;
 
     private Category(String name) {
         this.name = name;
@@ -16,7 +18,15 @@ public class Category {
     }
 
     @Override
-    public String toString() {
-        return name;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Category)) return false;
+        Category category = (Category) o;
+        return Objects.equals(name, category.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }
