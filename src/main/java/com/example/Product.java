@@ -1,37 +1,25 @@
 package com.example;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.UUID;
 
 public abstract class Product {
 
-    private final UUID uuid;
+    private final UUID id;
     private final String name;
     private final Category category;
     private BigDecimal price;
 
-    public Product(String name, Category category, BigDecimal price) {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Name cannot be null or blank.");
-        }
-        if (category == null) {
-            throw new IllegalArgumentException("Category cannot be null.");
-        }
-        if (price == null) {
-            throw new IllegalArgumentException("Price cannot be null.");
-        }
-        if (price.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Price cannot be negative.");
-        }
-
-        this.uuid = UUID.randomUUID();
-        this.name = name;
-        this.category = category;
-        this.price = price;
+    protected Product(UUID id, String name, Category category, BigDecimal price) {
+        this.id = Objects.requireNonNull(id, "Product ID cannot be null");
+        this.name = Objects.requireNonNull(name, "Product name cannot be null");
+        this.category = Objects.requireNonNull(category, "Product category cannot be null");
+        this.price = Objects.requireNonNull(price, "Product price cannot be null");
     }
 
     public UUID uuid() {
-        return uuid;
+        return id;
     }
 
     public String name() {
@@ -46,16 +34,14 @@ public abstract class Product {
         return price;
     }
 
-    // setter
     public void price(BigDecimal newPrice) {
-        if (newPrice == null) {
-            throw new IllegalArgumentException("Price cannot be null.");
-        }
-        if (newPrice.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Price cannot be negative.");
-        }
         this.price = newPrice;
     }
 
     public abstract String productDetails();
+
+    @Override
+    public String toString() {
+        return name + " (" + category.getName() + ")";
+    }
 }
