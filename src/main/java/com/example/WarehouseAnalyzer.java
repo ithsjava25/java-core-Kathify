@@ -73,7 +73,7 @@ class WarehouseAnalyzer {
         String term = searchTerm.toLowerCase(Locale.ROOT);
         List<Product> result = new ArrayList<>();
         for (Product p : warehouse.getProducts()) {
-            if (p.getName().toLowerCase(Locale.ROOT).contains(term)) {
+            if (p.name().toLowerCase(Locale.ROOT).contains(term)) {
                 result.add(p);
             }
         }

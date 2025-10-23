@@ -1,8 +1,11 @@
 package com.example;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Objects;
 
 public final class Category {
+    private static final Map<String, Category> INSTANCES = new ConcurrentHashMap<>();
     private final String name;
 
     private Category(String name) {
@@ -10,10 +13,23 @@ public final class Category {
     }
 
     public static Category of(String name) {
-        return new Category(name);
+        if (name == null) {
+            throw new IllegalArgumentException("Category name can't be null");
+        }
+
+        String trimmed = name.trim();
+        if (trimmed.isEmpty()) {
+            throw new IllegalArgumentException("Category name can't be blank");
+        }
+
+        // Kapitalisera första bokstaven
+        String formatted = trimmed.substring(0, 1).toUpperCase() + trimmed.substring(1);
+
+        // Flyweight: returnera samma instans om den redan finns
+        return INSTANCES.computeIfAbsent(formatted, Category::new);
     }
 
-    public String getName() {
+    public String name() {
         return name;
     }
 

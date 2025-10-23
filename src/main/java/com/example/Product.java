@@ -22,6 +22,10 @@ public abstract class Product {
         return id;
     }
 
+    public UUID getId() {
+        return id;
+    }
+
     public String name() {
         return name;
     }
@@ -38,10 +42,14 @@ public abstract class Product {
         this.price = newPrice;
     }
 
+    public void setPrice(BigDecimal newPrice) {
+        this.price = newPrice;
+    }
+
     public abstract String productDetails();
 
     @Override
     public String toString() {
-        return name + " (" + category.getName() + ")";
+        return name + " (" + category.name() + ")";
     }
 }

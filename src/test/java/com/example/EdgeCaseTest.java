@@ -1,7 +1,7 @@
 package com.example;
 
 
-import com.example.warehouse.*;
+import com.example.Warehouse.*;
 import org.junit.jupiter.api.*;
 
 import java.math.BigDecimal;
