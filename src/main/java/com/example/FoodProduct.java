@@ -31,7 +31,7 @@ public class FoodProduct extends Product implements Perishable, Shippable {
     @Override
     public BigDecimal calculateShippingCost() {
 
-        return weight.multiply(new BigDecimal("50"));
+        return weight.multiply(new BigDecimal("25"));
     }
 
     @Override

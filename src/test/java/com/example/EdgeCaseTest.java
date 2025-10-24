@@ -248,11 +248,9 @@ class EdgeCaseTest {
             assertThat(optimizedGroups)
                     .as("Should create optimal shipping groups")
                     .hasSizeGreaterThanOrEqualTo(2)
-                    .allSatisfy(group -> {
-                        assertThat(group.getTotalWeight())
-                                .as("Each group should not exceed max weight of 10.0")
-                                .isLessThanOrEqualTo(10.0);
-                    });
+                    .allSatisfy(group -> assertThat(group.getTotalWeight())
+                            .as("Each group should not exceed max weight of 10.0")
+                            .isLessThanOrEqualTo(10.0));
 
             // Verify all products are included
             long totalProducts = optimizedGroups.stream()

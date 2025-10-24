@@ -12,10 +12,10 @@ public abstract class Product {
     private BigDecimal price;
 
     protected Product(UUID id, String name, Category category, BigDecimal price) {
-        this.id = Objects.requireNonNull(id, "Product ID cannot be null");
-        this.name = Objects.requireNonNull(name, "Product name cannot be null");
-        this.category = Objects.requireNonNull(category, "Product category cannot be null");
-        this.price = Objects.requireNonNull(price, "Product price cannot be null");
+        this.id = Objects.requireNonNull(id, "Product ID cannot be null.");
+        this.name = Objects.requireNonNull(name, "Product name cannot be null.");
+        this.category = Objects.requireNonNull(category, "Product category cannot be null.");
+        this.price = Objects.requireNonNull(price, "Product price cannot be null.");
     }
 
     public UUID uuid() {

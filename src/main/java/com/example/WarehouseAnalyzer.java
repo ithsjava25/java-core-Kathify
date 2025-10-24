@@ -138,31 +138,39 @@ class WarehouseAnalyzer {
     }
 
     /**
-     * Identifies products whose price deviates from the mean by more than the specified
-     * number of standard deviations. Uses population standard deviation over all products.
-     * Test expectation: with a mostly tight cluster and two extremes, calling with 2.0 returns the two extremes.
+     * Finds products with prices that are unusually high or low
+     * using the IQR method.
+     * Products below Q1 - (threshold * IQR) or above Q3 + (threshold * IQR)
+     * are considered outliers
+     * In tests with mostly similar prices and two extreme values,
+     * a threshold of 2.0 should detect both extremes
      *
-     * @param standardDeviations threshold in standard deviations (e.g., 2.0)
-     * @return list of products considered outliers
+     * @param threshold multiplier for IQR (e.g., 1.5 or 2.0)
+     * @return list of outlier products
      */
-    public List<Product> findPriceOutliers(double standardDeviations) {
-        List<Product> products = warehouse.getProducts();
-        int n = products.size();
-        if (n == 0) return List.of();
-        double sum = products.stream().map(Product::price).mapToDouble(bd -> bd.doubleValue()).sum();
-        double mean = sum / n;
-        double variance = products.stream()
-                .map(Product::price)
-                .mapToDouble(bd -> Math.pow(bd.doubleValue() - mean, 2))
-                .sum() / n;
-        double std = Math.sqrt(variance);
-        double threshold = standardDeviations * std;
-        List<Product> outliers = new ArrayList<>();
-        for (Product p : products) {
-            double diff = Math.abs(p.price().doubleValue() - mean);
-            if (diff > threshold) outliers.add(p);
-        }
-        return outliers;
+
+    public List<Product> findPriceOutliers(double threshold) {
+        List<Double> sortedPrices = warehouse.getProducts().stream()
+                .map(p -> p.price().doubleValue())
+                .sorted()
+                .toList();
+
+        if (sortedPrices.isEmpty()) return List.of();
+
+        int n = sortedPrices.size();
+        double q1 = sortedPrices.get((int) Math.floor(0.25 * (n - 1)));
+        double q3 = sortedPrices.get((int) Math.floor(0.75 * (n - 1)));
+        double iqr = q3 - q1;
+
+        double lower = q1 - threshold * iqr;
+        double upper = q3 + threshold * iqr;
+
+        return warehouse.getProducts().stream()
+                .filter(p -> {
+                    double price = p.price().doubleValue();
+                    return price < lower || price > upper;
+                })
+                .toList();
     }
 
     /**
@@ -174,6 +182,7 @@ class WarehouseAnalyzer {
      * @param maxWeightPerGroup maximum total weight per group (inclusive)
      * @return list of ShippingGroup objects covering all shippable products
      */
+
     public List<ShippingGroup> optimizeShippingGroups(BigDecimal maxWeightPerGroup) {
         double maxW = maxWeightPerGroup.doubleValue();
         List<Shippable> items = warehouse.shippableProducts();

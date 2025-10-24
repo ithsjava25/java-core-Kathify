@@ -27,6 +27,9 @@ public final class Category {
         return INSTANCES.computeIfAbsent(formatted, Category::new);
     }
 
+    // Statisk konstant för Electronics
+    public static final Category ELECTRONICS = Category.of("Electronics");
+
     public String name() {
         return name;
     }
