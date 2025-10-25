@@ -139,7 +139,7 @@ class WarehouseAnalyzer {
 
     /**
      * Finds products with prices that are unusually high or low
-     * using the IQR method.
+     * using the IQR method
      * Products below Q1 - (threshold * IQR) or above Q3 + (threshold * IQR)
      * are considered outliers
      * In tests with mostly similar prices and two extreme values,
